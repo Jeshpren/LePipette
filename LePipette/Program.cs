@@ -10,16 +10,16 @@ InputParams testInput = new InputParams(
     );
 InputParams testInput2 = new InputParams(
     96,
-    new string[][] { new[] { "Sam4", "Sam5" }, new[] { "Sam1", "Sam2", "Sam3" } },
-    new string[][] { new[] { "ReagZ" }, new[] { "ReagX", "ReagY" } },
-    new int[] { 3, 1 },
+    new string[][] { new[] { "Sam1", "Sam2", "Sam3" }, new[] { "Sam7" }, new[] { "Sam4", "Sam5", "Sam6" }, new[] { "Sam8", "Sam9" }, new[] { "Sa10", "Sa11", "Sa12" } },
+    new string[][] { new[] { "ReagA" }, new[] { "ReagD", "ReagE", "ReagF" }, new[] { "ReagB", "ReagC" }, new[] { "ReagG", "ReagH" }, new[] { "ReagI" } },
+    new int[] { 3, 1, 2, 3, 1 },
     1
     );
 #endregion
 
 #region MAIN PROGRAM EXECUTION
 
-Well[,] result = GenerateOptimalWellPlacement(testInput);
+Well[,] result = GenerateOptimalWellPlacement(testInput2);
 
 #endregion
 
@@ -30,11 +30,15 @@ Well[,] GenerateOptimalWellPlacement(InputParams inputParams)
     Well[,] outputParams = CreateEmtpyPlate(inputParams.plateSize);
 
     // todo 1. generate array of 2d arrays (these will be the starting groups of wells (group of wells = experiment) that will then get sorted)
-    Experiment[] experiments= GenerateExperimentArray(inputParams);
-
-
+    Experiment[] experiments = GenerateExperimentArray(inputParams);
+    PrintExperimentArray(experiments);
 
     // todo 2. find an algorithm for optimal space usage
+    // sort experiment array: primarily sort by height, if heights match then sort by width 
+    Array.Sort(experiments, (a, b) => a.wells.GetLength(1) == b.wells.GetLength(1) ? b.wells.GetLength(0).CompareTo(a.wells.GetLength(0)) : b.wells.GetLength(1).CompareTo(a.wells.GetLength(1)));
+
+    Console.WriteLine("SORTED:\n");
+    PrintExperimentArray(experiments);
 
     return outputParams;
 }
@@ -62,8 +66,10 @@ Experiment[] GenerateExperimentArray(InputParams inputParams)
             }
         }
     }
-
-    // print the experiment array
+    return experimentArray;
+}
+void PrintExperimentArray(Experiment[] experimentArray)
+{
     for (int i = 0; i < experimentArray.Length; i++)
     {
         int experimentHeight = experimentArray[i].wells.GetLength(1);
@@ -80,9 +86,7 @@ Experiment[] GenerateExperimentArray(InputParams inputParams)
             Console.WriteLine(stringsToPrint[j]);
         }
         Console.WriteLine("");
-
     }
-    return experimentArray;
 }
 //Well[,] GenerateExperimentArrayOLD(InputParams inputParams)
 //{
