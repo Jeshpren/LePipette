@@ -1,38 +1,68 @@
 ﻿//using System.Runtime.CompilerServices;
+using LePipette.Classes;
+using LePipette.Helper;
 
 #region variables
-InputParams testInput1 = new InputParams(
+InputParams _testInput1 = new InputParams(
     96,
-    new string[][] { new[] { "Sam1", "Sam2", "Sam3" }, new[] { "Sam1", "Sam3", "Sam4" } },
-    new string[][] { new[] { "ReagX", "ReagY" }, new[] { "ReagY", "ReagZ" } },
+    new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm1", "Sm3", "Sm4" } },
+    new string[][] { new[] { "RaX", "RaY" }, new[] { "RaY", "RaZ" } },
     new int[] { 1, 3 },
     1
     );
-InputParams testInput2 = new InputParams(
+InputParams _testInput2 = new InputParams(
     96,
-    new string[][] { new[] { "Sam1", "Sam2", "Sam3" }, new[] { "Sam7" }, new[] { "Sam4", "Sam5", "Sam6" }, new[] { "Sam8", "Sam9" }, new[] { "Sa10", "Sa11", "Sa12" } },
-    new string[][] { new[] { "ReagA" }, new[] { "ReagD", "ReagE", "ReagF" }, new[] { "ReagB", "ReagC" }, new[] { "ReagG", "ReagH" }, new[] { "ReagI" } },
+    new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S12" } },
+    new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" } },
     new int[] { 3, 1, 2, 3, 1 },
     1
     );
-InputParams testInput3 = new InputParams(
+InputParams _testInput3 = new InputParams(
     96,
-    new string[][] { new[] { "Sam1", "Sam2", "Sam3" }, new[] { "Sam7" }, new[] { "Sam4", "Sam5", "Sam6" }, new[] { "Sam8", "Sam9" }, new[] { "Sa10", "Sa11", "Sa12" }, new[] { "Sa13", "Sa14", "Sa15", "Sa16" }, new[] { "Sa17", "Sa18", "Sa19" } },
-    new string[][] { new[] { "ReagA" }, new[] { "ReagD", "ReagE", "ReagF" }, new[] { "ReagB", "ReagC" }, new[] { "ReagG", "ReagH" }, new[] { "ReagI" }, new[] { "ReagJ", "ReagK" }, new[] { "ReagL" } },
+    new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" } },
+    new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" }, new[] { "RaJ", "RaK" }, new[] { "RaL" } },
     new int[] { 3, 1, 2, 3, 1, 2, 5 },
-    1
+    2
+    );
+InputParams _testInput4 = new InputParams(
+    96,
+    new string[][] { new[] { "S01", "S02", "S03" }, new[] { "S07" }, new[] { "S04", "S05", "S06" }, new[] { "S08", "S09" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" }, new[] { "S20", "S21", "S22", "S23", "S24" }, new[] { "S25", "S26", "S27", "S28" } },
+    new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" }, new[] { "RaJ", "RaK" }, new[] { "RaL" }, new[] { "RaM", "RaN" }, new[] { "RaO" } },
+    new int[] { 3, 1, 2, 3, 1, 2, 5, 1, 1 },
+    2
+    );
+InputParams _testInput5 = new InputParams(
+    96,
+    new string[][] { new[] { "S01", "S02", "S03" }, new[] { "S07" }, new[] { "S04", "S05", "S06" }, new[] { "S08", "S09" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" }, new[] { "S20", "S21", "S22", "S23", "S24" }, new[] { "S25", "S26", "S27", "S28" }, new[] { "S29" }, new[] { "S30", "S31" }, new[] { "S32", "S33", "S34" }, new[] { "S35", "S36", "S37", "S38" }, new[] { "S39", "S40", "S41", "S42", "S43" } },
+    new string[][] { new[] { "RAA" }, new[] { "RAD", "RAE", "RAF" }, new[] { "RAB", "RAC" }, new[] { "RAG", "RAH" }, new[] { "RAI" }, new[] { "RAJ", "RAK" }, new[] { "RAL" }, new[] { "RAM", "RAN" }, new[] { "RAO" }, new[] { "RAP", "RAQ" }, new[] { "RAR", "RAS", "RAT", "RAU" }, new[] { "RAV" }, new[] { "RAZ", "RBA", "RBB" }, new[] { "RBC", "RBD", "RBE", "RBF", "RBG", "RBH" } },
+    new int[] { 3, 1, 2, 3, 1, 2, 5, 1, 1, 4, 2, 1, 3, 1 },
+    3
     );
 #endregion
 
 #region MAIN PROGRAM EXECUTION
 
-Well[,] result = GenerateOptimalWellPlacement(testInput3);
+Well[][,] result = GeneratePlates(_testInput5);
 
 #endregion
 
-
 #region methods
-Well[,] GenerateOptimalWellPlacement(InputParams inputParams)
+Well[][,] GeneratePlates(InputParams inputParams)
+{
+    // todo ku printas plate, poskrb za enako dolzino (trenutnu so vsi name-i istu dolgi in ne rabs na tu skrbet)
+    // todo ce je experiment vecji od plate-a ga razrez
+    Experiment[] experiments = Helper.GenerateExperimentArray(inputParams);
+
+    //Console.WriteLine("EXPERIMENTS:");
+    //Helper.PrintExperimentArray(experiments);
+
+    // First Fit Decreasing
+    Well[][,] plates = FirstFitDecreasing(inputParams, experiments);
+
+
+    return plates;
+}
+Well[][,] FirstFitDecreasing(InputParams inputParams, Experiment[] experiments)
 {
     int plateRows = 0;
     int plateCols = 0;
@@ -46,209 +76,81 @@ Well[,] GenerateOptimalWellPlacement(InputParams inputParams)
         plateRows = 16;
         plateCols = 24;
     }
-
-    //x todo 1. generate array of 2d arrays (these will be the starting groups of wells (group of wells = experiment) that will then get sorted)
-    Experiment[] experiments = GenerateExperimentArray(inputParams);
-    // todo ce je experiment vecji od plate-a ga razrez
-    PrintExperimentArray(experiments);
-
     // sort experiment array: primarily sort by height, if heights match then sort by width 
     Array.Sort(experiments, (a, b) => a.wells.GetLength(0) == b.wells.GetLength(0) ? b.wells.GetLength(1).CompareTo(a.wells.GetLength(1)) : b.wells.GetLength(0).CompareTo(a.wells.GetLength(0)));
-    Console.WriteLine("SORTED:\n");
-    PrintExperimentArray(experiments);
+    Console.WriteLine("SORTED EXPERIMENTS:");
+    Console.WriteLine("--------------------------------------------");
+    Helper.PrintExperimentArray(experiments);
 
-    // todo 2. find an algorithm for optimal space usage
-    // torej: First Fit... ce je na trenutni poziciji dost placa, insertej experiment, drgac pejt v nasledno vrstico
-    Well[,] plate = CreateEmtpyPlate(inputParams.plateSize);
-    Well[,] plate1 = CreateEmtpyPlate(inputParams.plateSize);
+    Well[][,] plates = new Well[inputParams.maxPlates][,];
+    int[][] platesCurrentPosition = new int[inputParams.maxPlates][];
+
+    for (int i = 0; i < inputParams.maxPlates; i++)
+    {
+        plates[i] = Helper.CreateEmtpyPlate(inputParams.plateSize);
+        platesCurrentPosition[i] = new int[] { 0, 0 };
+    }
     int currentRow = 0;
     int currentCol = 0;
+    int currentPlate = 0;
+
+
     for (int i = 0; i < experiments.Length; i++)
     {
+        currentPlate = 0;
         int experimentRows = experiments[i].wells.GetLength(0);
         int experimentCols = experiments[i].wells.GetLength(1);
-        while (!(experimentCols < plateCols - currentCol && experimentRows < plateRows - currentRow))
+
+        currentRow = platesCurrentPosition[currentPlate][0];
+        currentCol = platesCurrentPosition[currentPlate][1];
+
+        while (true)
         {
-            currentCol += experimentCols;
-            if (currentCol >= plateCols)
+            // wide enough?
+            if (experimentCols <= plateCols - currentCol)
+            {//yes
+                // high enough?
+                if (experimentRows <= plateRows - currentRow)
+                {//yes
+                    // insert experiment
+                    for (int rowIdx = 0; rowIdx < experimentRows; rowIdx++)
+                        for (int columnIdx = 0; columnIdx < experimentCols; columnIdx++)
+                            plates[currentPlate][currentRow + rowIdx, currentCol + columnIdx] = experiments[i].wells[rowIdx, columnIdx];
+
+                    platesCurrentPosition[currentPlate][0] = currentRow;
+                    platesCurrentPosition[currentPlate][1] = currentCol + experimentCols;
+                    break;
+                }
+                else
+                {
+                    currentPlate++;
+                    if (currentPlate >= inputParams.maxPlates)
+                    {
+                        Console.WriteLine("error: max number of plates exceeded");
+                        Environment.Exit(0);
+                    }
+                    currentRow = platesCurrentPosition[currentPlate][0];
+                    currentCol = platesCurrentPosition[currentPlate][1];
+                }
+            }
+            else
             {
+                // back to first column
                 currentCol = 0;
-                while (plate[currentRow, 0] != null)
+                // find next empty row (in first column)
+                while (plates[currentPlate][currentRow, 0] != null)
                 {
                     currentRow++;
-                    if (experimentRows >= plateRows - currentRow)
-                    {
-                        currentRow = 0;
-                        currentCol = 0;
-                        // * zdej dela --> nared array platov (glede na max plates)
-                        plate1 = plate;
-                        plate = CreateEmtpyPlate(inputParams.plateSize);
+                    if (currentRow >= plateRows)
                         break;
-                    }
-                }
-            }
-        }
-        // put experiment on plate
-        for (int rowIdx = 0; rowIdx < experimentRows; rowIdx++)
-        {
-            for (int columnIdx = 0; columnIdx < experimentCols; columnIdx++)
-            {
-                plate[currentRow + rowIdx, currentCol + columnIdx] = experiments[i].wells[rowIdx, columnIdx];
-            }
-        }
-        currentCol += experimentCols;
-        if (currentCol >= plateCols)
-        {
-            currentCol = 0;
-            while (plate[currentRow, 0] != null)
-            {
-                currentRow++;
-            }
-        }
-    }
-
-    // PRINT PLATE
-    Console.WriteLine("PLATE:");
-    string[] stringsToPrint = new string[plateRows];
-    for (int i = 0; i < plateRows; i++)
-    {
-        for (int j = 0; j < plateCols; j++)
-        {
-            if (plate[i, j] != null)
-            {
-                stringsToPrint[i] += "[" + plate[i, j].sample + "-" + plate[i, j].reagent + "] ";
-            }
-            else
-            {
-                stringsToPrint[i] += "             ";
-            }
-        }
-        Console.WriteLine(stringsToPrint[i]);
-    }
-    Console.WriteLine("PLATE1:");
-    stringsToPrint = new string[plateRows];
-    for (int i = 0; i < plateRows; i++)
-    {
-        for (int j = 0; j < plateCols; j++)
-        {
-            if (plate1[i, j] != null)
-            {
-                stringsToPrint[i] += "[" + plate1[i, j].sample + "-" + plate1[i, j].reagent + "] ";
-            }
-            else
-            {
-                stringsToPrint[i] += "             ";
-            }
-        }
-        Console.WriteLine(stringsToPrint[i]);
-    }
-
-    return plate;
-}
-
-Experiment[] GenerateExperimentArray(InputParams inputParams)
-{
-    //create the experiment array
-    int nOfExperiments = inputParams.nOfReplicates.Length;
-    Experiment[] experimentArray = new Experiment[nOfExperiments];
-    for (int i = 0; i < nOfExperiments; i++)
-    {
-        int experimentRows = inputParams.sampleNames[i].Length;
-        int experimentCols = inputParams.reagentNames[i].Length * inputParams.nOfReplicates[i];
-        experimentArray[i] = new Experiment(new Well[experimentRows, experimentCols]);
-        for (int j = 0; j < inputParams.reagentNames[i].Length; j++)
-        {
-            for (int k = 0; k < inputParams.sampleNames[i].Length; k++)
-            {
-                int replicate = 0;
-                for (int l = 0; l < inputParams.nOfReplicates[i]; l++)
-                {
-                    experimentArray[i].wells[k, replicate + j * inputParams.nOfReplicates[i]] = new Well(inputParams.sampleNames[i][k], inputParams.reagentNames[i][j]);
-                    replicate++;
                 }
             }
         }
     }
-    return experimentArray;
-}
-void PrintExperimentArray(Experiment[] experimentArray)
-{
-    for (int i = 0; i < experimentArray.Length; i++)
-    {
-        int experimentRows = experimentArray[i].wells.GetLength(0);
-        int experimentCols = experimentArray[i].wells.GetLength(1);
-        string[] stringsToPrint = new string[experimentArray[i].wells.GetLength(0)];
-        for (int j = 0; j < experimentRows; j++)
-        {
-            for (int k = 0; k < experimentCols; k++)
-            {
-                string sample = experimentArray[i].wells[j, k].sample;
-                string reagent = experimentArray[i].wells[j, k].reagent;
-                stringsToPrint[j] += "[" + sample + "-" + reagent + "] ";
-            }
-            Console.WriteLine(stringsToPrint[j]);
-        }
-        Console.WriteLine("");
-    }
-}
-Well[,] CreateEmtpyPlate(int plateSize)
-{
-    Well[,] outputPlate;
-    if (plateSize == 96)
-    {
-        outputPlate = new Well[8, 12];
-    }
-    else if (plateSize == 384)
-    {
-        outputPlate = new Well[16, 24];
-    }
-    else
-    {
-        outputPlate = new Well[0, 0];
-        Console.WriteLine("error: valid values for plateSize are 96 and 384");
-        Environment.Exit(0);
-    }
-    return outputPlate;
-}
-#endregion
 
-#region classes
-class InputParams
-{
-    public int plateSize;
-    public string[][] sampleNames;
-    public string[][] reagentNames;
-    public int[] nOfReplicates;
-    public int maxPlates;
+    // PRINT PLATES
+    Helper.PrintPlates(plates, plateRows, plateCols);
 
-    public InputParams(int plateSize, string[][] sampleNames, string[][] reagentNames, int[] nOfReplicates, int maxPlates)
-    {
-        this.plateSize = plateSize;
-        this.sampleNames = sampleNames;
-        this.reagentNames = reagentNames;
-        this.nOfReplicates = nOfReplicates;
-        this.maxPlates = maxPlates;
-    }
-}
-
-class Well
-{
-    public string sample;
-    public string reagent;
-
-    public Well(string sample, string reagent)
-    {
-        this.sample = sample;
-        this.reagent = reagent;
-    }
-}
-class Experiment
-{
-    public Well[,] wells;
-
-    public Experiment(Well[,] wells)
-    {
-        this.wells = wells;
-    }
+    return plates;
 }
 #endregion
