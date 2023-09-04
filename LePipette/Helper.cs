@@ -71,24 +71,26 @@ namespace LePipette.Helper
                 }
             }
         }
-        internal static Well[,] CreateEmtpyPlate(int plateSize)
+        internal static (int, int) CalcuateRowsCols(int plateSize)
         {
-            Well[,] outputPlate;
+            int plateRows = 0;
+            int plateCols = 0;
             if (plateSize == 96)
             {
-                outputPlate = new Well[8, 12];
+                plateRows = 8;
+                plateCols = 12;
             }
             else if (plateSize == 384)
             {
-                outputPlate = new Well[16, 24];
+                plateRows = 16;
+                plateCols = 24;
             }
             else
             {
-                outputPlate = new Well[0, 0];
                 Console.WriteLine("error: valid values for plateSize are 96 and 384");
                 Environment.Exit(0);
             }
-            return outputPlate;
+            return (plateRows, plateCols);
         }
     }
 }
