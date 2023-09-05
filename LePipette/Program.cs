@@ -13,6 +13,13 @@ InputParams _testInput1 = new InputParams(
     new int[] { 1, 3 },
     1
     );
+InputParams _testInputToManyRows = new InputParams(
+    96,
+    new string[][] { new[] { "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10" }, new[] { "S11", "S12", "S13" } },
+    new string[][] { new[] { "RaX", "RaY" }, new[] { "RaY", "RaZ" } },
+    new int[] { 14, 3 },
+    3
+    );
 InputParams _testInput2 = new InputParams(
     96,
     new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S12" } },
@@ -45,13 +52,14 @@ InputParams _testInput5 = new InputParams(
 
 #region MAIN PROGRAM EXECUTION
 
-Well[][,] result = GeneratePlates(_testInput3);
+Well[][,] result = GeneratePlates(_testInputToManyRows);
 
 #endregion
 
 #region methods
 Well[][,] GeneratePlates(InputParams inputParams)
 {
+    // todo throw error if two reagents are the same (misunderstood? in the example input two reagents are the same); also throw error if two samples are the same in one experiment
     // todo ce je experiment vecji od plate-a ga razrez
     // todo calculate and display lower bound
     //x todo (FFD-Optimized) uporab FFD, s tem da, ce experiment ne pase v preostali prostor v trenutnm levelu, prelet cez vse elemente in najd naslednga, k bi pasou not, SELE POL pejt v nasledn level
@@ -68,7 +76,8 @@ Well[][,] GeneratePlates(InputParams inputParams)
     (_plateRows, _plateCols) = Helper.CalcuateRowsCols(inputParams.plateSize);
 
     // create and fill an array of experiments
-    Experiment[] experiments = Helper.GenerateExperimentArray(inputParams);
+    //Experiment[] experiments = Helper.GenerateExperimentArray(inputParams);
+    Experiment[] experiments = Helper.GenerateExperimentArrayNEW(inputParams);
 
     // First Fit Decreasing
     Well[][,] plates = FirstFitDecreasing(inputParams, experiments);
@@ -215,11 +224,8 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
                     platesCurrentPosition[currentPlate][1] = currentCol + experimentCols;
 
                     if (nextExpThatFitsIdx != 0)
-                    {
-                        // * shift exp array from i to nextExpThatFitsIdx
                         for (int j = i + nextExpThatFitsIdx; j > i; j--)
                             experiments[j] = experiments[j - 1];
-                    }
 
                     break;
                 }

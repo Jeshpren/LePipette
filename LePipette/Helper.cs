@@ -31,6 +31,105 @@ namespace LePipette.Helper
             }
             return experimentArray;
         }
+        internal static Experiment[] GenerateExperimentArrayNEW(InputParams inputParams)
+        {
+            (int plateRows, int plateCols) = CalcuateRowsCols(inputParams.plateSize);
+
+            //create the experiment array
+            int nOfExperiments = inputParams.nOfReplicates.Length;
+            Experiment[] experimentArray = new Experiment[nOfExperiments];
+            for (int i = 0; i < nOfExperiments; i++)
+            {
+                int experimentRows = inputParams.sampleNames[i].Length;
+                int experimentCols = inputParams.reagentNames[i].Length * inputParams.nOfReplicates[i];
+                experimentArray[i] = new Experiment(new Well[experimentRows, experimentCols]);
+                for (int j = 0; j < inputParams.reagentNames[i].Length; j++)
+                {
+                    for (int k = 0; k < inputParams.sampleNames[i].Length; k++)
+                    {
+                        int replicate = 0;
+                        for (int l = 0; l < inputParams.nOfReplicates[i]; l++)
+                        {
+                            experimentArray[i].wells[k, replicate + j * inputParams.nOfReplicates[i]] = new Well(inputParams.sampleNames[i][k], inputParams.reagentNames[i][j]);
+                            replicate++;
+                        }
+                    }
+                }
+            }
+
+            //split by height
+            List<Experiment> experimentListByRows = new List<Experiment>();
+            for (int i = 0; i < experimentArray.Length; i++)
+            {
+                int experimentRows = experimentArray[i].wells.GetLength(0);
+                int experimentCols = experimentArray[i].wells.GetLength(1);
+                if (experimentRows > plateRows)
+                {
+                    // cut (multiple times if needed)
+                    int nOfCuts = (int)MathF.Ceiling(experimentRows / (float)plateRows);
+
+                    for (int j = 0; j < nOfCuts; j++)
+                    {
+                        int nOfRowsToCut = plateRows;
+                        if (j == nOfCuts - 1)
+                            nOfRowsToCut = experimentRows - j * plateRows;
+
+                        Experiment experiment = new Experiment(new Well[nOfRowsToCut, experimentCols]);
+                        for (int rowIdx = 0; rowIdx < nOfRowsToCut; rowIdx++)
+                        {
+                            for (int colIdx = 0; colIdx < experimentCols; colIdx++)
+                            {
+                                experiment.wells[rowIdx, colIdx] = experimentArray[i].wells[rowIdx + j * plateRows, colIdx];
+                            }
+                        }
+                        experimentListByRows.Add(experiment);
+                    }
+
+                }
+                else
+                {
+                    experimentListByRows.Add(experimentArray[i]);
+                }
+            }
+
+            //split by width
+            List<Experiment> experimentListByCols = new List<Experiment>();
+            for (int i = 0; i < experimentListByRows.Count; i++)
+            {
+                int experimentRows = experimentListByRows[i].wells.GetLength(0);
+                int experimentCols = experimentListByRows[i].wells.GetLength(1);
+                if (experimentCols > plateCols)
+                {
+                    // cut (multiple times if needed)
+                    int nOfCuts = (int)MathF.Ceiling(experimentCols / (float)plateCols);
+
+                    for (int j = 0; j < nOfCuts; j++)
+                    {
+                        int nOfColsToCut = plateCols;
+                        if (j == nOfCuts - 1)
+                            nOfColsToCut = experimentCols - j * plateCols;
+
+                        Experiment experiment = new Experiment(new Well[experimentRows, nOfColsToCut]);
+                        for (int rowIdx = 0; rowIdx < experimentRows; rowIdx++)
+                        {
+                            for (int colIdx = 0; colIdx < nOfColsToCut; colIdx++)
+                            {
+                                experiment.wells[rowIdx, colIdx] = experimentListByRows[i].wells[rowIdx, colIdx + j * plateCols];
+                            }
+                        }
+                        experimentListByCols.Add(experiment);
+                    }
+
+                }
+                else
+                {
+                    experimentListByCols.Add(experimentListByRows[i]);
+                }
+            }
+
+            //return experimentArray;
+            return experimentListByCols.ToArray();
+        }
         internal static void PrintExperimentArray(Experiment[] experimentArray)
         {
             for (int i = 0; i < experimentArray.Length; i++)
