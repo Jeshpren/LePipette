@@ -45,7 +45,7 @@ InputParams _testInput5 = new InputParams(
 
 #region MAIN PROGRAM EXECUTION
 
-Well[][,] result = GeneratePlates(_testInput5);
+Well[][,] result = GeneratePlates(_testInput3);
 
 #endregion
 
@@ -54,10 +54,12 @@ Well[][,] GeneratePlates(InputParams inputParams)
 {
     // todo ce je experiment vecji od plate-a ga razrez
     // todo calculate and display lower bound
-    // todo (FFD-Optimized) uporab FFD, s tem da, ce experiment ne pase v preostali prostor v trenutnm levelu, prelet cez vse elemente in najd naslednga, k bi pasou not, SELE POL pejt v nasledn level
-    // todo comapre FFD and FFD-Optimized and choose the better one (might also try BFD)
+    //x todo (FFD-Optimized) uporab FFD, s tem da, ce experiment ne pase v preostali prostor v trenutnm levelu, prelet cez vse elemente in najd naslednga, k bi pasou not, SELE POL pejt v nasledn level
+    // todo comapre FFD and FFD-Optimized and choose the better one (actually dont think FFD can beat FFDO.. equal at most)
+    // todo you can make FFDO even better
     // todo display final data (number of bins and levels used; maybe display in relation to lower bound)
     // todo add Plate class (or something)
+    // todo public/internal n sht
     // todo ----------------------------------------
     // todo UI ce je cajt
     // todo ku printas plate, poskrb za enako dolzino (trenutnu so vsi name-i istu dolgi in ne rabs za tu skrbet)
@@ -70,8 +72,11 @@ Well[][,] GeneratePlates(InputParams inputParams)
 
     // First Fit Decreasing
     Well[][,] plates = FirstFitDecreasing(inputParams, experiments);
-
     // print final plates
+    Helper.PrintPlates(plates, _plateRows, _plateCols);
+
+
+    plates = FirstFitDecreasingOptimized(inputParams, experiments);
     Helper.PrintPlates(plates, _plateRows, _plateCols);
 
     return plates;
@@ -83,6 +88,9 @@ Well[][,] FirstFitDecreasing(InputParams inputParams, Experiment[] experiments)
     Console.WriteLine("SORTED EXPERIMENTS:");
     Console.WriteLine("--------------------------------------------");
     Helper.PrintExperimentArray(experiments);
+
+    Console.WriteLine("\n*******************************************");
+    Console.WriteLine("FFD");
 
     Well[][,] plates = new Well[inputParams.maxPlates][,];
     int[][] platesCurrentPosition = new int[inputParams.maxPlates][];
@@ -158,9 +166,12 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
 {
     // sort experiment array: primarily sort by height, if heights match then sort by width 
     Array.Sort(experiments, (a, b) => a.wells.GetLength(0) == b.wells.GetLength(0) ? b.wells.GetLength(1).CompareTo(a.wells.GetLength(1)) : b.wells.GetLength(0).CompareTo(a.wells.GetLength(0)));
-    Console.WriteLine("SORTED EXPERIMENTS:");
-    Console.WriteLine("--------------------------------------------");
-    Helper.PrintExperimentArray(experiments);
+    //Console.WriteLine("SORTED EXPERIMENTS:");
+    //Console.WriteLine("--------------------------------------------");
+    //Helper.PrintExperimentArray(experiments);
+
+    Console.WriteLine("\n*******************************************");
+    Console.WriteLine("FFD Optimized");
 
     Well[][,] plates = new Well[inputParams.maxPlates][,];
     int[][] platesCurrentPosition = new int[inputParams.maxPlates][];
@@ -178,11 +189,14 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
     for (int i = 0; i < experiments.Length; i++)
     {
         currentPlate = 0;
+        int nextExpThatFitsIdx = 0;
         int experimentRows = experiments[i].wells.GetLength(0);
         int experimentCols = experiments[i].wells.GetLength(1);
 
         currentRow = platesCurrentPosition[currentPlate][0];
         currentCol = platesCurrentPosition[currentPlate][1];
+
+        //x todo se prau... names da spreminjas i ku opica, lahku shiftas experiment array (exp k si ga dau not ga ne rabs vec, tku da zacnes z njim)
 
         while (true)
         {
@@ -195,10 +209,18 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
                     // insert experiment
                     for (int rowIdx = 0; rowIdx < experimentRows; rowIdx++)
                         for (int columnIdx = 0; columnIdx < experimentCols; columnIdx++)
-                            plates[currentPlate][currentRow + rowIdx, currentCol + columnIdx] = experiments[i].wells[rowIdx, columnIdx];
+                            plates[currentPlate][currentRow + rowIdx, currentCol + columnIdx] = experiments[i + nextExpThatFitsIdx].wells[rowIdx, columnIdx];
 
                     platesCurrentPosition[currentPlate][0] = currentRow;
                     platesCurrentPosition[currentPlate][1] = currentCol + experimentCols;
+
+                    if (nextExpThatFitsIdx != 0)
+                    {
+                        // * shift exp array from i to nextExpThatFitsIdx
+                        for (int j = i + nextExpThatFitsIdx; j > i; j--)
+                            experiments[j] = experiments[j - 1];
+                    }
+
                     break;
                 }
                 else
@@ -215,6 +237,20 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
             }
             else
             {
+                nextExpThatFitsIdx++;
+                if (i + nextExpThatFitsIdx < experiments.Length)
+                {
+                    experimentRows = experiments[i + nextExpThatFitsIdx].wells.GetLength(0);
+                    experimentCols = experiments[i + nextExpThatFitsIdx].wells.GetLength(1);
+                    continue;
+                }
+                else
+                {
+                    nextExpThatFitsIdx = 0;
+                    experimentRows = experiments[i].wells.GetLength(0);
+                    experimentCols = experiments[i].wells.GetLength(1);
+                }
+
                 // back to first column
                 currentCol = 0;
                 // find next empty row (in first column)
