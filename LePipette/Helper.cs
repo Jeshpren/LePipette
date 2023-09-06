@@ -1,15 +1,12 @@
 ﻿
 
 using LePipette.Classes;
-using System.Drawing;
-using System.Linq;
-using System.Numerics;
 
 namespace LePipette.Helper
 {
     internal class Helper
     {
-        internal static Experiment[] GenerateExperimentArrayNEW(InputParams inputParams)
+        internal static Experiment[] GenerateExperimentArray(InputParams inputParams)
         {
             (int plateRows, int plateCols) = CalcuateRowsCols(inputParams.plateSize);
 
@@ -37,7 +34,7 @@ namespace LePipette.Helper
 
             // check for reagent duplicates in the whole input
             ConsoleColor defaultColor = Console.ForegroundColor;
-            Console.ForegroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             List<string> allReagents = new List<string>();
             for (int i = 0; i < inputParams.reagentNames.Length; i++)
             {
@@ -60,7 +57,6 @@ namespace LePipette.Helper
                     samplesInCurrentExp.Add(inputParams.sampleNames[i][j]);
                 }
             }
-
             Console.ForegroundColor = defaultColor;
 
             //split by height
@@ -149,7 +145,7 @@ namespace LePipette.Helper
                     {
                         string sample = experimentArray[i].wells[j, k].sample;
                         string reagent = experimentArray[i].wells[j, k].reagent;
-                        stringsToPrint[j] += "[" + sample + "-" + reagent + "] ";
+                        stringsToPrint[j] += "[" + sample + "-" + reagent + "]";
                     }
                     Console.WriteLine(stringsToPrint[j]);
                 }
@@ -197,16 +193,15 @@ namespace LePipette.Helper
             }
             return (plateRows, plateCols);
         }
-        internal static void CalculateLowerBound(InputParams inputParams, Experiment[] experiments)
+        internal static void PrintLowerBound(InputParams inputParams, Experiment[] experiments)
         {
-            // lower bound
             int experimentsSize = 0;
             foreach (Experiment experiment in experiments)
                 experimentsSize += experiment.wells.Length;
             int lowerBound = (int)MathF.Ceiling(experimentsSize / (float)inputParams.plateSize);
-            Console.WriteLine("PlateSize: " + inputParams.plateSize + ", ExperimentsSize: " + experimentsSize + ", LowerBound: " + lowerBound);
+            Console.WriteLine("PlateSize: " + inputParams.plateSize + ", ExperimentsSize: " + experimentsSize + ", LowerBound: " + lowerBound + "\n");
         }
-        internal static void CalculateUsedPlatesRows(string algorithmName, Well[][,] plates)
+        internal static void PrintUsedPlatesRows(string algorithmName, Well[][,] plates)
         {
             int nOfPlatesUsed = plates.Length;
             int nOfRowsUsed = 0;
@@ -240,7 +235,10 @@ namespace LePipette.Helper
             if (nOfRowsUsed == 1)
                 rowStr = "row";
 
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(algorithmName + " used " + nOfPlatesUsed + " " + plateStr + " (" + nOfRowsUsed + " " + rowStr + " in the last one)");
+            Console.ForegroundColor = defaultColor;
         }
     }
 }

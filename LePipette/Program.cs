@@ -1,4 +1,4 @@
-﻿//using System.Runtime.CompilerServices;
+﻿
 using LePipette.Classes;
 using LePipette.Helper;
 
@@ -29,7 +29,7 @@ InputParams _testInput2 = new InputParams(
     );
 InputParams _testInput3 = new InputParams(
     96,
-    new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" } },
+    new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S10" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" } },
     new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" }, new[] { "RaJ", "RaE" }, new[] { "RaL" } },
     new int[] { 3, 1, 2, 3, 1, 2, 5 },
     2
@@ -48,48 +48,37 @@ InputParams _testInput5 = new InputParams(
     new int[] { 3, 1, 2, 3, 1, 2, 5, 1, 1, 4, 2, 1, 3, 1 },
     3
     );
+InputParams _testInput6 = new InputParams(
+    96,
+    new string[][] { new[] { "S01", "S02", "S03", "S32", "S33", "S34", "S35" }, new[] { "S07","S27","S37","S47","S57","S67","S77","S87","S97","S98","S99","S81" }, new[] { "S04", "S05", "S06", "S45", "S46", "S55", "S56", "S65", "S66" }, new[] { "S08", "S09" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" }, new[] { "S20", "S21", "S22", "S23", "S24" }, new[] { "S25", "S26", "S27", "S28" }, new[] { "S29" }, new[] { "S30", "S31" }, new[] { "S32", "S33", "S34" }, new[] { "S35", "S36", "S37", "S38" }, new[] { "S39", "S40", "S41", "S42", "S43" } },
+    new string[][] { new[] { "RAA" }, new[] { "RAD", "RAE", "RAF" }, new[] { "RAB", "RAC" }, new[] { "RAG", "RAH" }, new[] { "RAI" }, new[] { "RAJ", "RAK" }, new[] { "RAL" }, new[] { "RAM", "RAN" }, new[] { "RAO" }, new[] { "RAP", "RAQ" }, new[] { "RAR", "RAS", "RAT", "RAU" }, new[] { "RAV" }, new[] { "RAZ", "RBA", "RBB" }, new[] { "RBC", "RBD", "RBE", "RBF", "RBG", "RBH" } },
+    new int[] { 3, 1, 2, 3, 1, 2, 5, 1, 1, 4, 2, 1, 3, 1 },
+    4
+    );
 #endregion
 
 #region MAIN PROGRAM EXECUTION
 
-Well[][,] result = GeneratePlates(_testInputTooManyRowsCols);
+Well[][,] result = GeneratePlates(_testInput6);
 
 #endregion
 
 #region methods
 Well[][,] GeneratePlates(InputParams inputParams)
 {
-    //x todo throw warning if two reagents are the same (misunderstood? in the example input two reagents are the same); also throw error if two samples are the same in one experiment
-    //x todo ce je experiment vecji od plate-a ga razrez
-    //x todo calculate and display lower bound
-    //x todo (FFD-Optimized) uporab FFD, s tem da, ce experiment ne pase v preostali prostor v trenutnm levelu, prelet cez vse elemente in najd naslednga, k bi pasou not, SELE POL pejt v nasledn level
-    // todo comapre FFD and FFD-Optimized and choose the better one (actually dont think FFD can beat FFDO.. equal at most)
-    // todo you can make FFDO even better
-    //x todo display final data (number of bins and levels used; maybe display in relation to lower bound)
-    // todo add Plate class (or something)
-    // todo public/internal n sht
-    // todo ----------------------------------------
-    // todo UI ce je cajt
-    // todo ku printas plate, poskrb za enako dolzino (trenutnu so vsi name-i istu dolgi in ne rabs za tu skrbet)
-
-    // throws error if plateSize not correct
     (_plateRows, _plateCols) = Helper.CalcuateRowsCols(inputParams.plateSize);
 
-    // create and fill an array of experiments
-    Experiment[] experiments = Helper.GenerateExperimentArrayNEW(inputParams);
+    Experiment[] experiments = Helper.GenerateExperimentArray(inputParams);
 
-    // lower bound
-    Helper.CalculateLowerBound(inputParams, experiments);
+    Helper.PrintLowerBound(inputParams, experiments);
 
-    // First Fit Decreasing
     Well[][,] plates = FirstFitDecreasing(inputParams, experiments);
-    // print final plates
     Helper.PrintPlates(plates, _plateRows, _plateCols);
-    Helper.CalculateUsedPlatesRows("FFD", plates);
+    Helper.PrintUsedPlatesRows("FFD", plates);
 
     plates = FirstFitDecreasingOptimized(inputParams, experiments);
     Helper.PrintPlates(plates, _plateRows, _plateCols);
-    Helper.CalculateUsedPlatesRows("FFDO", plates);
+    Helper.PrintUsedPlatesRows("FFDO", plates);
 
     return plates;
 }
@@ -101,8 +90,8 @@ Well[][,] FirstFitDecreasing(InputParams inputParams, Experiment[] experiments)
     Console.WriteLine("--------------------------------------------");
     Helper.PrintExperimentArray(experiments);
 
-    Console.WriteLine("\n*******************************************");
-    Console.WriteLine("FFD");
+    Console.WriteLine("*******************************************************************************************");
+    Console.WriteLine("******************************************* FFD *******************************************");
 
     Well[][,] plates = new Well[inputParams.maxPlates][,];
     int[][] platesCurrentPosition = new int[inputParams.maxPlates][];
@@ -148,7 +137,10 @@ Well[][,] FirstFitDecreasing(InputParams inputParams, Experiment[] experiments)
                     currentPlate++;
                     if (currentPlate >= inputParams.maxPlates)
                     {
+                        ConsoleColor defaultColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("error: max number of plates exceeded");
+                        Console.ForegroundColor = defaultColor;
                         Environment.Exit(0);
                     }
                     currentRow = platesCurrentPosition[currentPlate][0];
@@ -178,12 +170,8 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
 {
     // sort experiment array: primarily sort by height, if heights match then sort by width 
     Array.Sort(experiments, (a, b) => a.wells.GetLength(0) == b.wells.GetLength(0) ? b.wells.GetLength(1).CompareTo(a.wells.GetLength(1)) : b.wells.GetLength(0).CompareTo(a.wells.GetLength(0)));
-    //Console.WriteLine("SORTED EXPERIMENTS:");
-    //Console.WriteLine("--------------------------------------------");
-    //Helper.PrintExperimentArray(experiments);
-
-    Console.WriteLine("\n*******************************************");
-    Console.WriteLine("FFD Optimized");
+    Console.WriteLine("\n********************************************************************************************");
+    Console.WriteLine("******************************************* FFDO *******************************************");
 
     Well[][,] plates = new Well[inputParams.maxPlates][,];
     int[][] platesCurrentPosition = new int[inputParams.maxPlates][];
