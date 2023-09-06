@@ -1,36 +1,14 @@
 ﻿
 
 using LePipette.Classes;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
 
 namespace LePipette.Helper
 {
     internal class Helper
     {
-        internal static Experiment[] GenerateExperimentArray(InputParams inputParams)
-        {
-            //create the experiment array
-            int nOfExperiments = inputParams.nOfReplicates.Length;
-            Experiment[] experimentArray = new Experiment[nOfExperiments];
-            for (int i = 0; i < nOfExperiments; i++)
-            {
-                int experimentRows = inputParams.sampleNames[i].Length;
-                int experimentCols = inputParams.reagentNames[i].Length * inputParams.nOfReplicates[i];
-                experimentArray[i] = new Experiment(new Well[experimentRows, experimentCols]);
-                for (int j = 0; j < inputParams.reagentNames[i].Length; j++)
-                {
-                    for (int k = 0; k < inputParams.sampleNames[i].Length; k++)
-                    {
-                        int replicate = 0;
-                        for (int l = 0; l < inputParams.nOfReplicates[i]; l++)
-                        {
-                            experimentArray[i].wells[k, replicate + j * inputParams.nOfReplicates[i]] = new Well(inputParams.sampleNames[i][k], inputParams.reagentNames[i][j]);
-                            replicate++;
-                        }
-                    }
-                }
-            }
-            return experimentArray;
-        }
         internal static Experiment[] GenerateExperimentArrayNEW(InputParams inputParams)
         {
             (int plateRows, int plateCols) = CalcuateRowsCols(inputParams.plateSize);
@@ -56,6 +34,34 @@ namespace LePipette.Helper
                     }
                 }
             }
+
+            // check for reagent duplicates in the whole input
+            ConsoleColor defaultColor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Red;
+            List<string> allReagents = new List<string>();
+            for (int i = 0; i < inputParams.reagentNames.Length; i++)
+            {
+                for (int j = 0; j < inputParams.reagentNames[i].Length; j++)
+                {
+                    if (allReagents.Contains(inputParams.reagentNames[i][j]))
+                        Console.WriteLine("WARNING: Duplicate reagent found: " + inputParams.reagentNames[i][j]);
+                    allReagents.Add(inputParams.reagentNames[i][j]);
+                }
+            }
+
+            // check for sample duplicates in every experiment
+            for (int i = 0; i < inputParams.sampleNames.Length; i++)
+            {
+                List<string> samplesInCurrentExp = new List<string>();
+                for (int j = 0; j < inputParams.sampleNames[i].Length; j++)
+                {
+                    if (samplesInCurrentExp.Contains(inputParams.sampleNames[i][j]))
+                        Console.WriteLine("WARNING: Duplicate sample found inside experiment " + (i + 1) + ": " + inputParams.sampleNames[i][j]);
+                    samplesInCurrentExp.Add(inputParams.sampleNames[i][j]);
+                }
+            }
+
+            Console.ForegroundColor = defaultColor;
 
             //split by height
             List<Experiment> experimentListByRows = new List<Experiment>();
@@ -154,7 +160,7 @@ namespace LePipette.Helper
         {
             for (int i = 0; i < plates.Length; i++)
             {
-                Console.WriteLine("\nPLATE" + i + ":");
+                Console.WriteLine("\nPLATE" + (i + 1) + ":");
                 Console.WriteLine("--------------------------------------------");
                 string[] stringsToPrint = new string[plateRows];
                 for (int j = 0; j < plateRows; j++)
@@ -162,9 +168,9 @@ namespace LePipette.Helper
                     for (int k = 0; k < plateCols; k++)
                     {
                         if (plates[i][j, k] != null)
-                            stringsToPrint[j] += "[" + plates[i][j, k].sample + "-" + plates[i][j, k].reagent + "] ";
+                            stringsToPrint[j] += "[" + plates[i][j, k].sample + "-" + plates[i][j, k].reagent + "]";
                         else
-                            stringsToPrint[j] += "[       ] ";
+                            stringsToPrint[j] += "[       ]";
                     }
                     Console.WriteLine(stringsToPrint[j]);
                 }
@@ -190,6 +196,51 @@ namespace LePipette.Helper
                 Environment.Exit(0);
             }
             return (plateRows, plateCols);
+        }
+        internal static void CalculateLowerBound(InputParams inputParams, Experiment[] experiments)
+        {
+            // lower bound
+            int experimentsSize = 0;
+            foreach (Experiment experiment in experiments)
+                experimentsSize += experiment.wells.Length;
+            int lowerBound = (int)MathF.Ceiling(experimentsSize / (float)inputParams.plateSize);
+            Console.WriteLine("PlateSize: " + inputParams.plateSize + ", ExperimentsSize: " + experimentsSize + ", LowerBound: " + lowerBound);
+        }
+        internal static void CalculateUsedPlatesRows(string algorithmName, Well[][,] plates)
+        {
+            int nOfPlatesUsed = plates.Length;
+            int nOfRowsUsed = 0;
+            for (int i = 0; i < plates.Length; i++)
+            {
+                if (plates[i][0, 0] == null)
+                {
+                    nOfPlatesUsed = i;
+                    break;
+                }
+            }
+
+            for (int i = 0; i < plates[nOfPlatesUsed - 1].GetLength(0); i++)
+            {
+                if (plates[nOfPlatesUsed - 1][i, 0] == null)
+                {
+                    nOfRowsUsed = i;
+                    break;
+                }
+                if (i == plates[nOfPlatesUsed - 1].GetLength(0) - 1)
+                {
+                    nOfRowsUsed = i + 1;
+                    break;
+                }
+            }
+
+            string plateStr = "plates";
+            string rowStr = "rows";
+            if (nOfPlatesUsed == 1)
+                plateStr = "plate";
+            if (nOfRowsUsed == 1)
+                rowStr = "row";
+
+            Console.WriteLine(algorithmName + " used " + nOfPlatesUsed + " " + plateStr + " (" + nOfRowsUsed + " " + rowStr + " in the last one)");
         }
     }
 }

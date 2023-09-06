@@ -13,12 +13,12 @@ InputParams _testInput1 = new InputParams(
     new int[] { 1, 3 },
     1
     );
-InputParams _testInputToManyRows = new InputParams(
+InputParams _testInputTooManyRowsCols = new InputParams(
     96,
-    new string[][] { new[] { "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S10" }, new[] { "S11", "S12", "S13" } },
+    new string[][] { new[] { "S01", "S02", "S03", "S04", "S05", "S06", "S07", "S08", "S09", "S01" }, new[] { "S11", "S12", "S12" } },
     new string[][] { new[] { "RaX", "RaY" }, new[] { "RaY", "RaZ" } },
     new int[] { 14, 3 },
-    3
+    4
     );
 InputParams _testInput2 = new InputParams(
     96,
@@ -30,7 +30,7 @@ InputParams _testInput2 = new InputParams(
 InputParams _testInput3 = new InputParams(
     96,
     new string[][] { new[] { "Sm1", "Sm2", "Sm3" }, new[] { "Sm7" }, new[] { "Sm4", "Sm5", "Sm6" }, new[] { "Sm8", "Sm9" }, new[] { "S10", "S11", "S12" }, new[] { "S13", "S14", "S15", "S16" }, new[] { "S17", "S18", "S19" } },
-    new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" }, new[] { "RaJ", "RaK" }, new[] { "RaL" } },
+    new string[][] { new[] { "RaA" }, new[] { "RaD", "RaE", "RaF" }, new[] { "RaB", "RaC" }, new[] { "RaG", "RaH" }, new[] { "RaI" }, new[] { "RaJ", "RaE" }, new[] { "RaL" } },
     new int[] { 3, 1, 2, 3, 1, 2, 5 },
     2
     );
@@ -52,20 +52,20 @@ InputParams _testInput5 = new InputParams(
 
 #region MAIN PROGRAM EXECUTION
 
-Well[][,] result = GeneratePlates(_testInputToManyRows);
+Well[][,] result = GeneratePlates(_testInputTooManyRowsCols);
 
 #endregion
 
 #region methods
 Well[][,] GeneratePlates(InputParams inputParams)
 {
-    // todo throw error if two reagents are the same (misunderstood? in the example input two reagents are the same); also throw error if two samples are the same in one experiment
-    // todo ce je experiment vecji od plate-a ga razrez
-    // todo calculate and display lower bound
+    //x todo throw warning if two reagents are the same (misunderstood? in the example input two reagents are the same); also throw error if two samples are the same in one experiment
+    //x todo ce je experiment vecji od plate-a ga razrez
+    //x todo calculate and display lower bound
     //x todo (FFD-Optimized) uporab FFD, s tem da, ce experiment ne pase v preostali prostor v trenutnm levelu, prelet cez vse elemente in najd naslednga, k bi pasou not, SELE POL pejt v nasledn level
     // todo comapre FFD and FFD-Optimized and choose the better one (actually dont think FFD can beat FFDO.. equal at most)
     // todo you can make FFDO even better
-    // todo display final data (number of bins and levels used; maybe display in relation to lower bound)
+    //x todo display final data (number of bins and levels used; maybe display in relation to lower bound)
     // todo add Plate class (or something)
     // todo public/internal n sht
     // todo ----------------------------------------
@@ -76,17 +76,20 @@ Well[][,] GeneratePlates(InputParams inputParams)
     (_plateRows, _plateCols) = Helper.CalcuateRowsCols(inputParams.plateSize);
 
     // create and fill an array of experiments
-    //Experiment[] experiments = Helper.GenerateExperimentArray(inputParams);
     Experiment[] experiments = Helper.GenerateExperimentArrayNEW(inputParams);
+
+    // lower bound
+    Helper.CalculateLowerBound(inputParams, experiments);
 
     // First Fit Decreasing
     Well[][,] plates = FirstFitDecreasing(inputParams, experiments);
     // print final plates
     Helper.PrintPlates(plates, _plateRows, _plateCols);
-
+    Helper.CalculateUsedPlatesRows("FFD", plates);
 
     plates = FirstFitDecreasingOptimized(inputParams, experiments);
     Helper.PrintPlates(plates, _plateRows, _plateCols);
+    Helper.CalculateUsedPlatesRows("FFDO", plates);
 
     return plates;
 }
@@ -205,8 +208,6 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
         currentRow = platesCurrentPosition[currentPlate][0];
         currentCol = platesCurrentPosition[currentPlate][1];
 
-        //x todo se prau... names da spreminjas i ku opica, lahku shiftas experiment array (exp k si ga dau not ga ne rabs vec, tku da zacnes z njim)
-
         while (true)
         {
             // wide enough?
@@ -243,6 +244,7 @@ Well[][,] FirstFitDecreasingOptimized(InputParams inputParams, Experiment[] expe
             }
             else
             {
+                // find next exp that fits
                 nextExpThatFitsIdx++;
                 if (i + nextExpThatFitsIdx < experiments.Length)
                 {
